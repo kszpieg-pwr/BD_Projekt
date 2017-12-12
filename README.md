@@ -1,4 +1,5 @@
 **Harmonogram**
+
 1. Zajęcia (1-4): ustalanie składu grup projektowych; definiowanie tematów i wstępnych założeń projektowych. - DONE
 
 2. Zajęcia (5-7): wymagania funkcjonalne i niefunkcjonalne aplikacji bazodanowej; diagramy projektowe (diagram i scenariusze przypadków użycia); konfigurowanie i testowanie wybranego systemu baz danych, operacji bazodanowych. - DONE
