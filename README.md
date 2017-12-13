@@ -4,7 +4,7 @@
 
 2. Zajęcia (5-7): wymagania funkcjonalne i niefunkcjonalne aplikacji bazodanowej; diagramy projektowe (diagram i scenariusze przypadków użycia); konfigurowanie i testowanie wybranego systemu baz danych, operacji bazodanowych. - DONE
 
-3. Zajęcia (8-10): projekt i implementacja bazy danych; testy operacji bazodanowych.
+3. Zajęcia (8-10): projekt i implementacja bazy danych; testy operacji bazodanowych. - DONE (uwagi na trello by Dominik - 13.12)
 
 4. Zajęcia (11-12): projekt i implementacja interfejsu użytkownika (aplikacji wykorzystującej bazę danych).
 
