@@ -2,6 +2,8 @@ import java.sql.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Okno {
 
@@ -9,13 +11,81 @@ public class Okno {
 	/**
 	 * @param args
 	 */
+
 	public static void main(String[] args) {
-		new Picture();
+		new Logowanie();
+		//Szukanie szukanie = new Szukanie();
+
+	} 
+	//TERAZ WYPISZE TYLE DANYCH ILE ZNAJDZIE KOLUMN
+	static String[] daneZBazy(ResultSet rs) {
+		//StringBuilder s = new StringBuilder();
+		String[] d = null;
 		
-		String polaczenieURL = "jdbc:mysql://64.62.211.131/demmix_BazaProjektowa?user=demmix_Matmix&password=bazydanych";
+		try {
+			
+			ResultSetMetaData rsmd = rs.getMetaData();
+			d = new String[rsmd.getColumnCount()];
+			
+			for(int i = 0; i < rsmd.getColumnCount(); i++) {
+				
+				d[i] = rs.getString(i+1);
+				
+			}
+		}catch(SQLException e) {
+			
+			e.printStackTrace();
+		}
+		return d;
+	}
+	//ROZBUDOWANY ONKLIK KORZYSTA TERAZ ZE STRINGA ALE NIE DA SIE TA METODA
+	//TWORZYC NOWYCH DANYCH DO BAZY, CHYBA
+	public static Object[][] onKlik(Connection conn, String query) {
+		
+		Object[][] odpowiedz = new Object[20][20];
+		int j = 0;
 		//Tworzymy proste zapytanie doa bazy danych
-		String query = "Select * FROM LEKARZE";
+		//String query = "Select * FROM LEKARZE";
+		try {
+			//Uruchamiamy zapytanie do bazy danych
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery(query);
+			ResultSetMetaData rsmd = rs.getMetaData();
+			//odpowiedz = new String[rsmd.get];
+			
+			
+			Class.forName("com.mysql.jdbc.Driver");
+				
+			while (rs.next()) {
+				for (int i = 0; i < rsmd.getColumnCount(); i++) {
+					
+					odpowiedz[j][i] = daneZBazy(rs)[i];
+
+				}
+
+				j++;
+			} 
+
+		}
+		catch(ClassNotFoundException wyjatek) {
+			System.out.println("Problem ze sterownikiem");
+		}
+		catch(SQLException wyjatek) {
+			//e.printStackTrace();
+			//System.out.println("Problem z logowaniem\nProsze sprawdzic:\n nazwę użytkownika, hasło, nazwę bazy danych lub adres IP serwera");
+			System.out.println("SQLException: " + wyjatek.getMessage());
+		    System.out.println("SQLState: " + wyjatek.getSQLState());
+		    System.out.println("VendorError: " + wyjatek.getErrorCode());
+		}
+		//wszystkie dane pozyskane z tablicy SQL
+		return odpowiedz;
+	}
+	
+	public static Connection lacz() {
 		
+		String polaczenieURL = "jdbc:mysql://64.62.211.131/demmix_BazaProjektowa?"
+				+ "user=demmix_Matmix&password=bazydanych";
+
 		Connection conn = null;
 		
 		try {
@@ -23,29 +93,7 @@ public class Okno {
 			//Ustawiamy dane dotyczące podłączenia
 			conn = DriverManager.getConnection(polaczenieURL);
 			
-			//Ustawiamy sterownik MySQL
-			Class.forName("com.mysql.jdbc.Driver");
-			
-			//Uruchamiamy zapytanie do bazy danych
-			Statement stmt = conn.createStatement();
-			ResultSet rs = stmt.executeQuery(query);
-			
-		//	System.out.println(rs.getString(0));
-		//	System.out.println(rs.getString(2));
-		//	System.out.println(rs.getString(3));
-			//System.out.println(rs.getString(4));
-			
-			while (rs.next()) {
-				wyswietlDaneZBazy(rs);
-				daneZBazy(rs);
-			} 
-	
-			conn.close();
 		} 
-		//Wyrzuć wyjątki jężeli nastąpią błędy z podłączeniem do bazy danych lub blędy zapytania o dane
-		catch(ClassNotFoundException wyjatek) {
-			System.out.println("Problem ze sterownikiem");
-		}
 
 		catch(SQLException wyjatek) {
 			//e.printStackTrace();
@@ -54,38 +102,55 @@ public class Okno {
 		    System.out.println("SQLState: " + wyjatek.getSQLState());
 		    System.out.println("VendorError: " + wyjatek.getErrorCode());
 		}
-
-	} 
-	static void wyswietlDaneZBazy(ResultSet rs){
-		try{
-		daneZBazy = rs.getString(1);
-		System.out.println("\n" + daneZBazy + " ");
-		daneZBazy = rs.getString(2);
-		System.out.println(daneZBazy + " ");
-		daneZBazy = rs.getString(3);
-		System.out.println(daneZBazy);
-		daneZBazy = rs.getString(4);
-		System.out.println(daneZBazy);
-		}catch(SQLException e) {
-			e.printStackTrace();
-		}
-	}
-	static String daneZBazy(ResultSet rs) {
-		StringBuilder s = new StringBuilder();
-		String d;
-		try {
-			s.append(rs.getString(1));
-			s.append("\n");
-			s.append(rs.getString(2));
-			s.append("\n");
-			s.append(rs.getString(3));
-			s.append("\n");
-			s.append(rs.getString(4));
-		}catch (SQLException e) {
-			e.printStackTrace();
-		}
-		d = s.toString();
-		return d;
-	}
 		
+		return conn;
+	}
+	public static void rozlacz(Connection conn) {
+		
+		try {
+			conn.close();
+		} catch (SQLException e) {
+			
+			e.printStackTrace();
+		}
+	}
+	//TO O WLASNIE NIE DZIALA WYWALA NULL POINTER ALE NIE WIEM W SUMIE DLACZEGO
+	//NORMALNIE JEST WYWOLANA PODCZAS KLIKNIECIA ALE JAK TWORZYSZ Z NIEJ
+	//TABLICE TO WYWALA
+	public static String[] nazwyKol(Connection conn, String query) {
+		
+		String[] columnNames = null;
+		try {
+			//Uruchamiamy zapytanie do bazy danych
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery(query);
+			ResultSetMetaData rsmd = rs.getMetaData();
+			columnNames = new String[rsmd.getColumnCount()];
+			
+			Class.forName("com.mysql.jdbc.Driver");
+			
+			for(int i = 0; i < rsmd.getColumnCount(); i++) {
+				
+				columnNames[i] = rsmd.getColumnName(i + 1);
+			//	System.out.println(rsmd.getColumnName(i).toString());
+			}
+		}catch(SQLException e) {
+			
+			e.printStackTrace();
+		}catch(ClassNotFoundException wyjatek) { 
+			
+			System.out.println("Problem ze sterownikiem");
+		}
+		
+		return columnNames;	
+	}
+public static String queryCreator(Object tablica) {
+		
+		String query = "";
+		String nazwaTablicy = "";
+		nazwaTablicy = ((String) tablica).toUpperCase();
+		query = "SELECT " + "* " + "FROM " + nazwaTablicy;
+		
+		return query;
+	}
 }
